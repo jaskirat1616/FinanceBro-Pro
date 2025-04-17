@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>AI Market Insights</h2>
+        <p class="text-muted">Ask Gemini AI about a specific stock.</p>
+        <form method="POST" action="{{ url_for('main.ai_insights') }}">
+            {{ ai_form.hidden_tag() }}
+            <div class="mb-3">
+                {{ ai_form.ticker.label(class="form-label") }}
+                {{ ai_form.ticker(class="form-control", placeholder="e.g., AAPL, TSLA") }}
+                {% if ai_form.ticker.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ ai_form.ticker.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ ai_form.question.label(class="form-label") }}
+                {{ ai_form.question(class="form-control", rows="4", placeholder="e.g., What are the main risks for this stock? Is it overvalued?") }}
+                {% if ai_form.question.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ ai_form.question.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+            {{ ai_form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+    
+    {% if insights_html %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-robot me-2"></i>AI Analysis for {{ ticker }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="ai-response p-3 bg-light rounded border">
+                    {{ insights_html|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted">
+                <p class="fs-4 mt-3"><i class="bi bi-chat-dots" style="font-size: 2rem;"></i></p>
+                <p>Enter a stock ticker and your question to get AI-powered insights.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{# Optional: Add Bootstrap Icons CDN to base.html if you want icons #}
+{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> #}
+{% endblock %}

@@ -1,0 +1,144 @@
+/* FinanceBro Pro Theme CSS */
+:root {
+    --primary: #4e73df;
+    --secondary: #6c757d;
+    --success: #1cc88a;
+    --info: #36b9cc;
+    --warning: #f6c23e;
+    --danger: #e74a3b;
+    --light: #f8f9fc;
+    --dark: #2d3748;
+    --dashboard-bg: #f8fafc;
+    --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    --card-border: 1px solid rgba(0, 0, 0, 0.1);
+    --chart-grid: rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background-color: var(--dashboard-bg);
+    font-family: 'Nunito', 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+/* Navigation */
+.navbar-dark.bg-dark {
+    background-color: var(--dark) !important;
+}
+
+.navbar .navbar-brand {
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* Cards */
+.card {
+    border: var(--card-border);
+    border-radius: 0.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom: var(--card-border);
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--dark);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: #375bda;
+    border-color: #375bda;
+}
+
+/* Forms */
+.form-control {
+    border-radius: 0.35rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+}
+
+/* Finance-specific elements */
+.ticker-symbol {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.trend-bullish {
+    color: var(--success);
+}
+
+.trend-bearish {
+    color: var(--danger);
+}
+
+.trend-neutral {
+    color: var(--secondary);
+}
+
+.chart-container {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: white;
+    box-shadow: var(--card-shadow);
+}
+
+.ai-response {
+    background-color: rgba(78, 115, 223, 0.05);
+    border-left: 4px solid var(--primary);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.ai-response pre, .ai-response code {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+}
+
+/* Error pages */
+.error-container {
+    padding: 3rem 0;
+}
+
+.error-container .display-1 {
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.finance-quote {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+} 

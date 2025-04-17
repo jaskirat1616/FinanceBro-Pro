@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Trade Ideas - FinanceBro Pro{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Trade Ideas</h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Select Stock</h5>
+            <form method="POST" action="{{ url_for('main.trade_ideas') }}">
+                {{ form.hidden_tag() }}
+                <div class="input-group mb-3">
+                    {{ form.ticker(class="form-control", placeholder="Enter Ticker (e.g., GOOGL)") }}
+                    {{ form.submit(class="btn btn-primary", value="Generate Ideas") }}
+                </div>
+                {% if form.ticker.errors %}
+                    <div class="invalid-feedback d-block mb-2">
+                        {{ form.ticker.errors[0] }}
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if ticker %}
+        <h3 class="mb-3">Trade Ideas for: <span class="ticker-symbol">{{ ticker }}</span></h3>
+        
+        {% if trade_ideas %}
+            <div class="row">
+                {% for idea in trade_ideas %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-{{ 'arrow-up text-success' if idea.strategy == 'Long' else 'arrow-down text-danger' }} me-2"></i>
+                                    {{ idea.strategy }} Strategy
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-6"><strong>Entry Price:</strong></div>
+                                    <div class="col-6 text-end">${{ "%.2f"|format(idea.entry_price) }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6"><strong>Target Price:</strong></div>
+                                    <div class="col-6 text-end">${{ "%.2f"|format(idea.target_price) }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6"><strong>Stop Loss:</strong></div>
+                                    <div class="col-6 text-end">${{ "%.2f"|format(idea.stop_loss) }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6"><strong>Risk/Reward:</strong></div>
+                                    <div class="col-6 text-end">{{ "%.2f"|format(idea.risk_reward_ratio) }}</div>
+                                </div>
+                                <hr>
+                                <p class="card-text"><strong>Rationale:</strong></p>
+                                <p class="text-muted small">{{ idea.rationale }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-light text-center" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>No trade ideas available for {{ ticker }} at this time.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-light text-center" role="alert">
+            <i class="fas fa-search me-2"></i>Enter a stock ticker above to generate trade ideas.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

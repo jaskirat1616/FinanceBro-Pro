@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="error-container text-center">
+    <h1 class="display-1">500</h1>
+    <h2 class="mb-4">Server Error</h2>
+    <p class="lead mb-5">We're experiencing some technical difficulties. Our team has been notified.</p>
+    <p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-sync-alt me-2"></i>Try Again
+        </a>
+    </p>
+    <div class="finance-quote mt-5">
+        <p class="fst-italic">"In the business world, the rearview mirror is always clearer than the windshield."</p>
+        <p>- Warren Buffett</p>
+    </div>
+</div>
+{% endblock %} 

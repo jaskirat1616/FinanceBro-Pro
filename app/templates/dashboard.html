@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FinanceBro Pro{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-search me-2 text-primary"></i>Stock Analysis</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.dashboard') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group mb-3">
+                        {{ form.ticker(class="form-control form-control-lg", placeholder="Enter Ticker (e.g., MSFT)") }}
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                    {% if form.ticker.errors %}
+                        <div class="invalid-feedback d-block mb-2">
+                            {{ form.ticker.errors[0] }}
+                        </div>
+                    {% endif %}
+                </form>
+
+                {% if analysis %}
+                <hr>
+                <h5 class="mb-3">Analysis for: <span class="ticker-symbol">{{ analysis['ticker'] }}</span></h5>
+                <div class="row mb-2">
+                    <div class="col-6"><strong>Current Price:</strong></div>
+                    <div class="col-6 text-end fw-bold">${{ "%.2f"|format(analysis['current_price']) if analysis['current_price'] is not none else 'N/A' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6"><strong>20-day SMA:</strong></div>
+                    <div class="col-6 text-end">${{ "%.2f"|format(analysis['sma_20']) if analysis['sma_20'] is not none else 'N/A' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6"><strong>50-day SMA:</strong></div>
+                    <div class="col-6 text-end">${{ "%.2f"|format(analysis['sma_50']) if analysis['sma_50'] is not none else 'N/A' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6"><strong>RSI (14):</strong></div>
+                    <div class="col-6 text-end">
+                        {% if analysis['rsi'] is not none %}
+                            <span class="{{ 'text-danger' if analysis['rsi'] > 70 else 'text-success' if analysis['rsi'] < 30 else '' }}">
+                                {{ "%.2f"|format(analysis['rsi']) }}
+                            </span>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6"><strong>Trend:</strong></div>
+                    <div class="col-6 text-end">
+                        <span class="badge fs-6 bg-{{ 'success' if analysis['trend'] == 'Bullish' else 'danger' if analysis['trend'] == 'Bearish' else 'secondary' }}">
+                            {{ analysis['trend'] }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6"><strong>Sentiment:</strong></div>
+                    <div class="col-6 text-end">
+                        {% set sent = analysis.get('sentiment') %}
+                        {% if sent is not none %}
+                            {% set sent_color = 'success' if sent > 0.15 else 'danger' if sent < -0.15 else 'warning' %}
+                            <span class="badge fs-6 bg-{{ sent_color }}">
+                                {{ "%.3f"|format(sent) }}
+                                ({{ 'Positive' if sent > 0.15 else 'Negative' if sent < -0.15 else 'Neutral' }})
+                            </span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="{{ url_for('main.analysis', ticker=analysis['ticker']) }}" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-chart-bar me-1"></i>Detailed Analysis
+                    </a>
+                    <a href="{{ url_for('main.ai_insights', ticker=analysis['ticker']) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-robot me-1"></i>AI Insights
+                    </a>
+                </div>
+                
+                {% elif request.method == 'POST' %}
+                <hr>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>No analysis data found for the submitted ticker. Please check the ticker symbol.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Price Chart (3 Months)</h5>
+            </div>
+            <div class="card-body">
+                {% if chart %}
+                <div class="chart-container border rounded p-2">
+                    {{ chart|safe }}
+                </div>
+                {% else %}
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+                    <i class="fas fa-chart-area" style="font-size: 3rem;"></i>
+                    <p class="mt-3">Price chart will appear here after analyzing a stock.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if sentiment_data and sentiment_data.summaries %}
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-newspaper me-2 text-primary"></i>Latest News Sentiment</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for summary in sentiment_data.summaries %}
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border-bottom">
+                            {{ summary|safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if ideas %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-lightbulb me-2 text-primary"></i>Trade Ideas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for idea in ideas %}
+                    <div class="col-md-4 mb-3">
+                        {% set idea_color = 'success' if idea.action == 'Buy' else 'danger' if idea.action == 'Sell' else 'secondary' %}
+                        {% set idea_icon = 'fas fa-arrow-up' if idea.action == 'Buy' else 'fas fa-arrow-down' if idea.action == 'Sell' else 'fas fa-minus' %}
+                        <div class="card h-100 shadow-sm border-{{ idea_color }}">
+                            <div class="card-header bg-{{ idea_color }} bg-opacity-10 text-{{ idea_color }}">
+                                <h5 class="card-title mb-0">
+                                    <i class="{{ idea_icon }} me-2"></i>{{ idea.strategy }}: {{ idea.action }}
+                                </h5>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <p class="card-text">{{ idea.reason }}</p>
+                                <div class="mt-auto">
+                                    {% set conf_color = 'primary' if idea.confidence == 'High' else 'warning' if idea.confidence == 'Medium' else 'secondary' %}
+                                    <span class="badge bg-{{ conf_color }}">
+                                        Confidence: {{ idea.confidence }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('main.trade_ideas', ticker=ticker) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-lightbulb me-1"></i>View All Trade Ideas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if not analysis and not chart %}
+<div class="card shadow-sm mt-4">
+    <div class="card-body text-center p-5">
+        <i class="fas fa-chart-line mb-3" style="font-size: 3rem; color: #4e73df;"></i>
+        <h4>Welcome to FinanceBro Pro</h4>
+        <p class="lead">Enter a stock ticker above to get started with real-time financial analysis.</p>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <i class="fas fa-chart-bar text-primary mb-2"></i>
+                        <h5>Technical Analysis</h5>
+                        <p class="small">Get key technical indicators and trend analysis</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <i class="fas fa-lightbulb text-warning mb-2"></i>
+                        <h5>Trade Ideas</h5>
+                        <p class="small">Receive data-driven trading strategies</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <i class="fas fa-robot text-success mb-2"></i>
+                        <h5>AI Insights</h5>
+                        <p class="small">Ask questions and get smart answers about any stock</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed Analysis - FinanceBro Pro{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Detailed Stock Analysis</h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Select Stock</h5>
+            <form method="POST" action="{{ url_for('main.analysis') }}">
+                {{ form.hidden_tag() }}
+                <div class="input-group mb-3">
+                    {{ form.ticker(class="form-control", placeholder="Enter Ticker (e.g., GOOGL)") }}
+                    {{ form.submit(class="btn btn-primary", value="Get Details") }}
+                </div>
+                {% if form.ticker.errors %}
+                    <div class="invalid-feedback d-block mb-2">
+                        {{ form.ticker.errors[0] }}
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if ticker %}
+        <h3 class="mb-3">Analysis for: <span class="ticker-symbol">{{ ticker }}</span></h3>
+        <div class="row">
+            {# Company Information Card #}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fas fa-building me-2 text-primary"></i>Company Information</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if company_info %}
+                            {% for key, value in company_info.items() %}
+                                {% if key != 'Summary' %}
+                                <div class="row mb-2">
+                                    <div class="col-5"><strong>{{ key }}:</strong></div>
+                                    <div class="col-7 text-end">{{ value }}</div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% if company_info.get('Summary') %}
+                                <hr>
+                                <p><strong>Summary:</strong></p>
+                                <p class="text-muted small">{{ company_info.Summary }}</p>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-circle me-2"></i>Company information not available.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Technical Analysis Card #}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                     <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Technical Snapshot</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if technical_analysis %}
+                            <div class="row mb-3">
+                                <div class="col-6"><strong>Current Price:</strong></div>
+                                <div class="col-6 text-end fw-bold fs-5">${{ "%.2f"|format(technical_analysis['current_price']) if technical_analysis['current_price'] is not none else 'N/A' }}</div>
+                            </div>
+                            <hr>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>20-day SMA:</strong></div>
+                                <div class="col-6 text-end">${{ "%.2f"|format(technical_analysis['sma_20']) if technical_analysis['sma_20'] is not none else 'N/A' }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>50-day SMA:</strong></div>
+                                <div class="col-6 text-end">${{ "%.2f"|format(technical_analysis['sma_50']) if technical_analysis['sma_50'] is not none else 'N/A' }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>RSI (14):</strong></div>
+                                <div class="col-6 text-end">
+                                    {% if technical_analysis['rsi'] is not none %}
+                                        <span class="{{ 'text-danger' if technical_analysis['rsi'] > 70 else 'text-success' if technical_analysis['rsi'] < 30 else '' }}">
+                                            {{ "%.2f"|format(technical_analysis['rsi']) }}
+                                        </span>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6"><strong>Trend:</strong></div>
+                                <div class="col-6 text-end">
+                                    <span class="badge fs-6 bg-{{ 'success' if technical_analysis['trend'] == 'Bullish' else 'danger' if technical_analysis['trend'] == 'Bearish' else 'secondary' }}">
+                                        {{ technical_analysis['trend'] }}
+                                    </span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="card-text text-muted small">
+                                <p class="mb-1"><i class="fas fa-info-circle me-1"></i><strong>RSI:</strong> Values > 70 often considered overbought, < 30 oversold.</p>
+                                <p class="mb-0"><i class="fas fa-info-circle me-1"></i><strong>Trend:</strong> Based on price position relative to moving averages.</p>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-circle me-2"></i>Technical analysis data not available.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-lightbulb me-2 text-primary"></i>Insights</h5>
+            </div>
+            <div class="card-body">
+                {% if technical_analysis and technical_analysis['trend'] != 'N/A' %}
+                    <p>
+                        {{ ticker }} is currently showing a <strong class="{{ 'text-success' if technical_analysis['trend'] == 'Bullish' else 'text-danger' if technical_analysis['trend'] == 'Bearish' else 'text-secondary' }}">{{ technical_analysis['trend'] }}</strong> trend.
+                        
+                        {% if technical_analysis['rsi'] is not none %}
+                            {% if technical_analysis['rsi'] > 70 %}
+                                The RSI of {{ "%.2f"|format(technical_analysis['rsi']) }} indicates the stock may be <strong class="text-danger">overbought</strong>, suggesting potential for a pullback.
+                            {% elif technical_analysis['rsi'] < 30 %}
+                                The RSI of {{ "%.2f"|format(technical_analysis['rsi']) }} indicates the stock may be <strong class="text-success">oversold</strong>, suggesting potential for a bounce.
+                            {% else %}
+                                The RSI of {{ "%.2f"|format(technical_analysis['rsi']) }} is in a neutral range.
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                    <p>
+                        <a href="{{ url_for('main.trade_ideas', ticker=ticker) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-lightbulb me-1"></i>Generate Trade Ideas
+                        </a>
+                        <a href="{{ url_for('main.ai_insights', ticker=ticker) }}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-robot me-1"></i>Get AI Analysis
+                        </a>
+                    </p>
+                {% else %}
+                    <p>Insufficient data to provide meaningful insights for {{ ticker }}.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-light text-center" role="alert">
+            <i class="fas fa-search me-2"></i>Enter a stock ticker above to view detailed analysis.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

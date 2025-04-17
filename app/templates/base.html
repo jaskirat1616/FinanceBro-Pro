@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinanceBro Pro - Advanced Financial Analysis Platform">
+    <title>{% block title %}FinanceBro Pro{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.dashboard') }}">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                <span>FinanceBro Pro</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('main.dashboard') %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('main.analysis') %}active{% endif %}" href="{{ url_for('main.analysis') }}">
+                            <i class="fas fa-chart-bar me-1"></i> Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('main.trade_ideas') %}active{% endif %}" href="{{ url_for('main.trade_ideas') }}">
+                            <i class="fas fa-lightbulb me-1"></i> Trade Ideas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('main.ai_insights') %}active{% endif %}" href="{{ url_for('main.ai_insights') }}">
+                            <i class="fas fa-robot me-1"></i> AI Insights
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="bg-light text-dark p-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5">
+                    <h5><i class="fas fa-chart-line me-2 text-primary"></i>FinanceBro Pro</h5>
+                    <p class="small">Professional financial analysis platform with real-time data and AI-powered insights for informed trading decisions.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Features</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="{{ url_for('main.dashboard') }}" class="text-dark text-decoration-none">Dashboard</a></li>
+                        <li><a href="{{ url_for('main.analysis') }}" class="text-dark text-decoration-none">Technical Analysis</a></li>
+                        <li><a href="{{ url_for('main.trade_ideas') }}" class="text-dark text-decoration-none">Trading Strategies</a></li>
+                        <li><a href="{{ url_for('main.ai_insights') }}" class="text-dark text-decoration-none">AI Insights</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>About</h5>
+                    <p class="small">FinanceBro Pro is an open-source project demonstrating financial analysis capabilities in a modern web application.</p>
+                    <p class="small">
+                        <a href="https://github.com/yourusername/financebro_pro" class="text-dark text-decoration-none">
+                            <i class="fab fa-github me-1"></i> View on GitHub
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="small mb-0">&copy; {{ now.year }} FinanceBro Pro - Open Source</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="small mb-0">Data: Yahoo Finance | AI: Google Gemini</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
